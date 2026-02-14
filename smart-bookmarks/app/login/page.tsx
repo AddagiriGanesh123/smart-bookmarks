@@ -15,7 +15,7 @@ export default async function LoginPage() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://smart-bookmarks-chi.vercel.app'}/auth/callback`,
         queryParams: {
           prompt: 'select_account',
         },
