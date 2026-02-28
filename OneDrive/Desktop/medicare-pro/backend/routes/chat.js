@@ -1,0 +1,12 @@
+const router = require('express').Router();
+const c = require('../controllers/chatController');
+const auth = require('./middleware');
+router.get('/patients',             auth.staff, c.getPatientList);
+router.get('/patients/:patientId',  auth.any,   c.getMessages);
+router.put('/read/:patientId',      auth.staff, c.markRead);
+router.get('/unread-total',         auth.staff, c.getTotalUnread);
+router.post('/send',                auth.any,   c.sendMessage);
+router.get('/my-unread',            auth.any,   c.getUnreadForPatient);
+router.post('/request-appointment', auth.any,   c.requestAppointment);
+router.get('/doctors',              auth.any,   c.getDoctors);
+module.exports = router;

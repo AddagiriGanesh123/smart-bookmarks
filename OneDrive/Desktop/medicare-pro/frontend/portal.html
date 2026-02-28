@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediCare Pro – Patient Portal</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; }
+  .header { background: #1a237e; color: #fff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 20px; }
+  .header button { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+  .container { max-width: 900px; margin: 32px auto; padding: 0 16px; }
+  .login-card { background: #fff; border-radius: 16px; padding: 48px 40px; max-width: 400px; margin: 80px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+  .login-card h2 { color: #1a237e; margin-bottom: 8px; }
+  .login-card p { color: #777; font-size: 14px; margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+  input, select, textarea { width: 100%; padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #1a73e8; }
+  .btn { width: 100%; padding: 13px; background: #1a73e8; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn:hover { background: #1558b0; }
+  .btn-sm { width: auto; padding: 8px 18px; font-size: 13px; border-radius: 8px; background: #1a73e8; color: #fff; border: none; cursor: pointer; }
+  .btn-sm:hover { background: #1558b0; }
+  .error { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; }
+  .card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .card h3 { color: #1a237e; margin-bottom: 16px; font-size: 16px; padding-bottom: 10px; border-bottom: 2px solid #e8ecf8; }
+  .patient-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-item .key { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .info-item .val { font-size: 15px; color: #222; font-weight: 500; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 10px 12px; background: #f0f4f8; font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; }
+  td { padding: 12px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-yellow { background: #fef9c3; color: #854d0e; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .pdf-btn { background: #1a73e8; color: #fff; border: none; padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; text-decoration: none; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; background: #fff; border: 2px solid #e0e0e0; color: #555; position: relative; }
+  .tab.active { background: #1a237e; color: #fff; border-color: #1a237e; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .tab-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .chat-wrap { display: flex; flex-direction: column; height: 480px; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; background: #f8fafc; border-radius: 8px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .chat-bubble { max-width: 70%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+  .chat-bubble.patient { background: #1a73e8; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .chat-bubble.staff { background: #fff; color: #222; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .chat-bubble .meta { font-size: 11px; opacity: 0.7; margin-top: 4px; }
+  .chat-input-row { display: flex; gap: 8px; align-items: flex-end; }
+  .chat-input-row textarea { flex: 1; resize: none; height: 44px; padding: 10px 14px; border-radius: 22px; }
+  .chat-send-btn { background: #1a73e8; color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .chat-send-btn:hover { background: #1558b0; }
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: #fff; border-radius: 16px; padding: 32px; width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal h3 { color: #1a237e; margin-bottom: 20px; font-size: 18px; }
+  .modal-footer { display: flex; gap: 8px; margin-top: 20px; }
+  .btn-cancel { background: #f3f4f6; color: #555; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="login-view">
+  <div class="login-card">
+    <h2>🏥 Patient Portal</h2>
+    <p>Log in with your Patient ID and portal password</p>
+    <div id="login-error" class="error" style="display:none"></div>
+    <div class="form-group"><label>Patient ID</label><input id="l-pid" placeholder="e.g. MED1001" autocomplete="username"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="l-pwd" autocomplete="current-password"></div>
+    <button class="btn" onclick="portalLogin()">Sign In</button>
+    <p style="text-align:center;margin-top:16px;font-size:13px;color:#999">Staff? <a href="/login" style="color:#1a73e8">Staff Login →</a></p>
+  </div>
+</div>
+<div id="portal-view" style="display:none">
+  <div class="header">
+    <h1>🏥 MediCare Pro — Patient Portal</h1>
+    <div>
+      <span id="portal-name" style="margin-right:16px;font-size:14px"></span>
+      <button onclick="portalLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('profile')">My Profile</div>
+      <div class="tab" onclick="showTab('appointments')">Appointments</div>
+      <div class="tab" onclick="showTab('reports')">Reports</div>
+      <div class="tab" onclick="showTab('bills')">Bills</div>
+      <div class="tab" onclick="showTab('chat')" id="chat-tab">💬 Chat<span class="tab-badge" id="chat-badge" style="display:none">0</span></div>
+    </div>
+    <div class="tab-content active" id="tab-profile">
+      <div class="card"><h3>Personal Information</h3><div class="patient-info" id="profile-info"></div></div>
+    </div>
+    <div class="tab-content" id="tab-appointments">
+      <div class="card"><h3>My Appointments</h3>
+        <table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Doctor</th><th>Status</th></tr></thead>
+        <tbody id="portal-appts"></tbody></table>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-reports">
+      <div class="card"><h3>Medical Reports</h3>
+        <table><thead><tr><th>Type</th><th>Title</th><th>Date</th><th>Status</th><th>Download</th></tr></thead>
+        <tbody id="portal-reports"></tbody></table>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-bills">
+      <div class="card"><h3>Bills & Payments</h3>
+        <table><thead><tr><th>Bill #</th><th>Total</th><th>Paid</th><th>Status</th><th>Date</th><th>Download</th></tr></thead>
+        <tbody id="portal-bills"></tbody></table>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-chat">
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3 style="margin-bottom:0;border:none;padding:0">💬 Chat with Our Staff</h3>
+          <button class="btn-sm" onclick="openApptModal()">📅 Book Appointment</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chat-wrap">
+          <div class="chat-messages" id="chat-messages">
+            <div style="text-align:center;color:#aaa;font-size:13px;margin:auto">Send a message to our staff</div>
+          </div>
+          <div class="chat-input-row">
+            <textarea id="chat-input" placeholder="Type your message..." onkeydown="chatKeyDown(event)"></textarea>
+            <button class="chat-send-btn" onclick="sendChatMessage()">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="appt-modal">
+  <div class="modal">
+    <h3>📅 Book an Appointment</h3>
+    <div class="form-group"><label>Select Doctor</label><select id="appt-doctor"></select></div>
+    <div class="form-group"><label>Preferred Date</label><input type="date" id="appt-date"></div>
+    <div class="form-group"><label>Preferred Time</label><input type="time" id="appt-time"></div>
+    <div class="form-group"><label>Reason for Visit</label><textarea id="appt-reason" rows="3" placeholder="Describe your symptoms..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeApptModal()">Cancel</button>
+      <button class="btn-sm" onclick="submitApptRequest()">Send Request</button>
+    </div>
+  </div>
+</div>
+<script>
+let portalToken=null,portalPatient=null,chatPollInterval=null;
+async function portalLogin(){
+  const pid=document.getElementById('l-pid').value.trim();
+  const pwd=document.getElementById('l-pwd').value;
+  const err=document.getElementById('login-error');
+  err.style.display='none';
+  try{
+    const res=await fetch('/api/patients/portal/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient_id:pid,password:pwd})});
+    const data=await res.json();
+    if(!res.ok){err.textContent=data.error||'Login failed';err.style.display='block';return;}
+    portalToken=data.token;portalPatient=data.patient;
+    localStorage.setItem('portalToken',portalToken);
+    localStorage.setItem('portalPatient',JSON.stringify(portalPatient));
+    showPortal();
+  }catch(e){err.textContent='Connection error';err.style.display='block';}
+}
+function portalLogout(){
+  if(chatPollInterval)clearInterval(chatPollInterval);
+  localStorage.removeItem('portalToken');localStorage.removeItem('portalPatient');
+  window.location.reload();
+}
+async function apiPortal(path,opts={}){
+  const res=await fetch('/api'+path,{...opts,headers:{'Authorization':'Bearer '+portalToken,'Content-Type':'application/json',...(opts.headers||{})}});
+  return res.json();
+}
+function showPortal(){
+  document.getElementById('login-view').style.display='none';
+  document.getElementById('portal-view').style.display='block';
+  document.getElementById('portal-name').textContent=portalPatient.name;
+  loadPortalData();loadChatMessages();checkUnreadFromStaff();
+  chatPollInterval=setInterval(()=>{loadChatMessages();checkUnreadFromStaff();},10000);
+}
+async function loadPortalData(){
+  const [patient,appts,reports,bills]=await Promise.all([
+    apiPortal('/patients/'+portalPatient.id),
+    apiPortal('/appointments?patient_id='+portalPatient.id+'&limit=20'),
+    apiPortal('/reports?patient_id='+portalPatient.id+'&limit=20'),
+    apiPortal('/bills?patient_id='+portalPatient.id+'&limit=20'),
+  ]);
+  const fields=[['Patient ID',patient.patient_id],['Name',patient.name],['Phone',patient.phone],['Email',patient.email||'–'],['DOB',patient.date_of_birth||'–'],['Gender',patient.gender||'–'],['Blood Group',patient.blood_group||'–'],['Emergency Contact',patient.emergency_contact_name||'–']];
+  document.getElementById('profile-info').innerHTML=fields.map(([k,v])=>'<div class="info-item"><div class="key">'+k+'</div><div class="val">'+v+'</div></div>').join('');
+  document.getElementById('portal-appts').innerHTML=(appts?.rows||[]).map(a=>'<tr><td>'+a.appointment_date+'</td><td>'+a.appointment_time+'</td><td>'+a.type+'</td><td>'+(a.doctor_name||'–')+'</td><td><span class="badge '+badge(a.status)+'">'+a.status+'</span></td></tr>').join('')||'<tr><td colspan="5" style="color:#999;text-align:center">No appointments</td></tr>';
+  document.getElementById('portal-reports').innerHTML=(reports?.rows||[]).map(r=>'<tr><td>'+r.report_type+'</td><td>'+r.title+'</td><td>'+new Date(r.created_at).toLocaleDateString()+'</td><td><span class="badge '+badge(r.status)+'">'+r.status+'</span></td><td><a class="pdf-btn" href="/api/reports/'+r.id+'/pdf?token='+portalToken+'" target="_blank">PDF</a></td></tr>').join('')||'<tr><td colspan="5" style="color:#999;text-align:center">No reports</td></tr>';
+  document.getElementById('portal-bills').innerHTML=(bills?.rows||[]).map(b=>'<tr><td><b>'+b.bill_number+'</b></td><td>₹'+parseFloat(b.total).toFixed(2)+'</td><td>₹'+parseFloat(b.paid_amount).toFixed(2)+'</td><td><span class="badge '+badge(b.status)+'">'+b.status+'</span></td><td>'+new Date(b.created_at).toLocaleDateString()+'</td><td><a class="pdf-btn" href="/api/bills/'+b.id+'/pdf?token='+portalToken+'" target="_blank">PDF</a></td></tr>').join('')||'<tr><td colspan="6" style="color:#999;text-align:center">No bills</td></tr>';
+}
+async function loadChatMessages(){
+  try{
+    const msgs=await apiPortal('/chat/patients/'+portalPatient.id);
+    const box=document.getElementById('chat-messages');
+    if(!Array.isArray(msgs)||!msgs.length)return;
+    box.innerHTML=msgs.map(m=>{
+      const isPatient=m.sender_role==='patient';
+      const time=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      return '<div class="chat-bubble '+(isPatient?'patient':'staff')+'"><div>'+m.message.replace(/\n/g,'<br>')+'</div><div class="meta">'+(isPatient?'You':(m.staff_name||'Staff'))+' · '+time+'</div></div>';
+    }).join('');
+    box.scrollTop=box.scrollHeight;
+  }catch(e){}
+}
+async function checkUnreadFromStaff(){
+  try{
+    const data=await apiPortal('/chat/my-unread');
+    const b=document.getElementById('chat-badge');
+    if(data.unread>0){b.textContent=data.unread;b.style.display='flex';}else{b.style.display='none';}
+  }catch(e){}
+}
+async function sendChatMessage(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();if(!msg)return;input.value='';
+  try{
+    await apiPortal('/chat/send',{method:'POST',body:JSON.stringify({patient_id:portalPatient.id,message:msg,priority:'normal'})});
+    await loadChatMessages();
+  }catch(e){}
+}
+function chatKeyDown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage();}}
+async function openApptModal(){
+  document.getElementById('appt-modal').classList.add('active');
+  const doctors=await apiPortal('/chat/doctors');
+  document.getElementById('appt-doctor').innerHTML=doctors.map(d=>'<option value="'+d.id+'">'+d.name+' – '+d.specialization+'</option>').join('');
+  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+  document.getElementById('appt-date').min=tomorrow.toISOString().split('T')[0];
+  document.getElementById('appt-time').value='10:00';
+}
+function closeApptModal(){document.getElementById('appt-modal').classList.remove('active');}
+async function submitApptRequest(){
+  const doctor_id=document.getElementById('appt-doctor').value;
+  const requested_date=document.getElementById('appt-date').value;
+  const requested_time=document.getElementById('appt-time').value;
+  const reason=document.getElementById('appt-reason').value;
+  if(!requested_date||!requested_time){alert('Please select date and time');return;}
+  try{
+    await apiPortal('/chat/request-appointment',{method:'POST',body:JSON.stringify({doctor_id,requested_date,requested_time,reason})});
+    closeApptModal();showTab('chat');await loadChatMessages();
+  }catch(e){alert('Failed to send request');}
+}
+function badge(s){return{paid:'badge-green',completed:'badge-green',reviewed:'badge-green',scheduled:'badge-blue',confirmed:'badge-blue',pending:'badge-yellow',partial:'badge-yellow',cancelled:'badge-red','no-show':'badge-red'}[s]||'badge-blue';}
+function showTab(name){
+  const tabs=['profile','appointments','reports','bills','chat'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='chat'){document.getElementById('chat-badge').style.display='none';loadChatMessages();}
+}
+const savedToken=localStorage.getItem('portalToken');
+const savedPatient=localStorage.getItem('portalPatient');
+if(savedToken&&savedPatient){portalToken=savedToken;portalPatient=JSON.parse(savedPatient);showPortal();}
+document.getElementById('l-pwd').addEventListener('keydown',e=>{if(e.key==='Enter')portalLogin();});
+</script>
+</body>
+</html>

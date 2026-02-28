@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediCare Pro – Dashboard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="app">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h2>🏥 MediCare</h2>
+      <span id="userRole">Pro</span>
+    </div>
+    <ul class="nav-links">
+      <li class="active" data-page="dashboard"><span>📊</span> Dashboard</li>
+      <li data-page="patients"><span>👥</span> Patients</li>
+      <li data-page="appointments"><span>📅</span> Appointments</li>
+      <li data-page="reports"><span>📋</span> Reports</li>
+      <li data-page="bills"><span>💳</span> Billing</li>
+      <li data-page="messages"><span>💬</span> Messages <span id="nav-msg-badge" style="display:none;background:#ef4444;color:#fff;border-radius:50%;padding:1px 6px;font-size:11px;font-weight:700;margin-left:6px">0</span></li>
+    </ul>
+    <div class="sidebar-footer">
+      <span id="userName"></span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <!-- Dashboard Page -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header"><h1>Dashboard</h1></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">👥</div><div><div class="stat-num" id="stat-patients">–</div><div class="stat-label">Total Patients</div></div></div>
+        <div class="stat-card"><div class="stat-icon">📅</div><div><div class="stat-num" id="stat-appts">–</div><div class="stat-label">Today's Appointments</div></div></div>
+        <div class="stat-card"><div class="stat-icon">📋</div><div><div class="stat-num" id="stat-reports">–</div><div class="stat-label">Pending Reports</div></div></div>
+        <div class="stat-card"><div class="stat-icon">💳</div><div><div class="stat-num" id="stat-bills">–</div><div class="stat-label">Unpaid Bills</div></div></div>
+      </div>
+      <div class="recent-section">
+        <h3>Recent Patients</h3>
+        <table class="data-table" id="recent-patients-table">
+          <thead><tr><th>Patient ID</th><th>Name</th><th>Phone</th><th>Registered</th><th>Action</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Patients Page -->
+    <div id="page-patients" class="page">
+      <div class="page-header">
+        <h1>Patients</h1>
+        <button class="btn-primary" onclick="showModal('patient-modal')">+ Add Patient</button>
+      </div>
+      <div class="search-bar"><input type="text" id="patient-search" placeholder="Search by name, ID, phone…" oninput="searchPatients()"></div>
+      <table class="data-table" id="patients-table">
+        <thead><tr><th>Patient ID</th><th>Name</th><th>Phone</th><th>Gender</th><th>Blood</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="patients-pagination" class="pagination"></div>
+    </div>
+
+    <!-- Appointments Page -->
+    <div id="page-appointments" class="page">
+      <div class="page-header">
+        <h1>Appointments</h1>
+        <button class="btn-primary" onclick="showModal('appt-modal')">+ New Appointment</button>
+      </div>
+      <div id="appt-requests-section" style="margin-bottom:24px;display:none">
+        <h3 style="color:#1a237e;margin-bottom:12px;font-size:16px">Pending Appointment Requests</h3>
+        <table class="data-table" id="appt-requests-table">
+          <thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Reason</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h3 style="color:#1a237e;margin-bottom:12px;font-size:16px">All Appointments</h3>
+      <table class="data-table" id="appts-table">
+        <thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Reports Page -->
+    <div id="page-reports" class="page">
+      <div class="page-header">
+        <h1>Medical Reports</h1>
+        <button class="btn-primary" onclick="showModal('report-modal')">+ New Report</button>
+      </div>
+      <table class="data-table" id="reports-table">
+        <thead><tr><th>Patient</th><th>Type</th><th>Title</th><th>Doctor</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Bills Page -->
+    <div id="page-bills" class="page">
+      <div class="page-header">
+        <h1>Billing</h1>
+        <button class="btn-primary" onclick="showModal('bill-modal')">+ Create Bill</button>
+      </div>
+      <table class="data-table" id="bills-table">
+        <thead><tr><th>Bill #</th><th>Patient</th><th>Total</th><th>Paid</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Messages Page -->
+    <div id="page-messages" class="page">
+      <div class="page-header"><h1>Patient Messages</h1></div>
+      <div class="msg-layout">
+        <div class="msg-sidebar">
+          <div class="msg-sidebar-header">Conversations</div>
+          <div id="msg-patient-items"><div class="msg-loading">Loading...</div></div>
+        </div>
+        <div class="msg-main" id="msg-chat-area">
+          <div class="msg-welcome">
+            <h3>Patient Messages</h3>
+            <p>Select a patient from the left to view messages</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Patient Modal -->
+<div class="modal" id="patient-modal">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Register Patient</h3><button onclick="closeModal('patient-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Full Name *</label><input id="p-name" placeholder="Full name"></div>
+        <div class="form-group"><label>Phone *</label><input id="p-phone" placeholder="Phone number"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input id="p-email" type="email" placeholder="Email"></div>
+        <div class="form-group"><label>Date of Birth</label><input id="p-dob" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Gender</label>
+          <select id="p-gender"><option value="">Select</option><option>male</option><option>female</option><option>other</option></select>
+        </div>
+        <div class="form-group"><label>Blood Group</label><input id="p-blood" placeholder="e.g. O+"></div>
+      </div>
+      <div class="form-group"><label>Address</label><textarea id="p-address" rows="2" placeholder="Address"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Emergency Contact</label><input id="p-ec-name" placeholder="Name"></div>
+        <div class="form-group"><label>Emergency Phone</label><input id="p-ec-phone" placeholder="Phone"></div>
+      </div>
+      <div class="form-group"><label>Portal Password (patient login)</label><input id="p-password" type="password" placeholder="Set portal password"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('patient-modal')">Cancel</button>
+      <button class="btn-primary" onclick="createPatient()">Register Patient</button>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Modal -->
+<div class="modal" id="appt-modal">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Schedule Appointment</h3><button onclick="closeModal('appt-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Patient ID *</label><input id="a-pid" placeholder="MED1001"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Date *</label><input id="a-date" type="date"></div>
+        <div class="form-group"><label>Time *</label><input id="a-time" type="time"></div>
+      </div>
+      <div class="form-group"><label>Type</label>
+        <select id="a-type"><option>consultation</option><option>follow-up</option><option>emergency</option><option>lab</option><option>surgery</option></select>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="a-notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('appt-modal')">Cancel</button>
+      <button class="btn-primary" onclick="createAppointment()">Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal" id="report-modal">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Create Report</h3><button onclick="closeModal('report-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Patient ID *</label><input id="r-pid" placeholder="MED1001"></div>
+        <div class="form-group"><label>Report Type *</label><input id="r-type" placeholder="e.g. Blood Test, X-Ray"></div>
+      </div>
+      <div class="form-group"><label>Title *</label><input id="r-title" placeholder="Report title"></div>
+      <div class="form-group"><label>Description</label><textarea id="r-desc" rows="2"></textarea></div>
+      <div class="form-group"><label>Findings</label><textarea id="r-findings" rows="2"></textarea></div>
+      <div class="form-group"><label>Recommendations</label><textarea id="r-recs" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('report-modal')">Cancel</button>
+      <button class="btn-primary" onclick="createReport()">Create Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bill Modal -->
+<div class="modal" id="bill-modal">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Create Bill</h3><button onclick="closeModal('bill-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Patient ID *</label><input id="b-pid" placeholder="MED1001"></div>
+      <div class="form-group">
+        <label>Bill Items</label>
+        <div id="bill-items"></div>
+        <button class="btn-secondary" style="margin-top:8px" onclick="addBillItem()">+ Add Item</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Tax (₹)</label><input id="b-tax" type="number" value="0"></div>
+        <div class="form-group"><label>Discount (₹)</label><input id="b-discount" type="number" value="0"></div>
+      </div>
+      <div class="form-group"><label>Due Date</label><input id="b-due" type="date"></div>
+      <div class="form-group"><label>Notes</label><textarea id="b-notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('bill-modal')">Cancel</button>
+      <button class="btn-primary" onclick="createBill()">Create Bill</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/js/app.js"></script>
+
+</body>
+</html>
